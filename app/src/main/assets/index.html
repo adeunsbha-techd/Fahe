@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ollie panel</title>
+<style>
+  :root{
+    --bg:#07070c;--panel:rgba(20,20,32,.6);--panel2:rgba(28,28,44,.5);
+    --stroke:rgba(255,255,255,.08);--stroke2:rgba(255,255,255,.14);
+    --text:#e8e8f0;--muted:#8a8aa0;--accent:#7c5cff;--accent2:#22d3ee;
+    --good:#22c55e;--bad:#ef4444;--mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--text);
+    font-family:-apple-system,'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden}
+  body::before,body::after{content:"";position:fixed;border-radius:50%;
+    filter:blur(110px);opacity:.32;pointer-events:none;z-index:0;will-change:transform}
+  body::before{width:420px;height:420px;
+    background:radial-gradient(circle,#7c5cff,transparent 70%);
+    top:-160px;left:-140px;animation:f1 22s ease-in-out infinite}
+  body::after{width:480px;height:480px;
+    background:radial-gradient(circle,#22d3ee,transparent 70%);
+    bottom:-200px;right:-160px;animation:f2 26s ease-in-out infinite}
+  @keyframes f1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,50px)}}
+  @keyframes f2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-40px)}}
+  .wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;
+    padding:22px 14px 70px}
+  header{display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:20px;padding:4px 2px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .mark{width:36px;height:36px;border-radius:11px;
+    background:conic-gradient(from 200deg,#7c5cff,#22d3ee,#7c5cff);
+    display:grid;place-items:center;
+    box-shadow:0 0 28px rgba(124,92,255,.4),inset 0 0 0 1px rgba(255,255,255,.15)}
+  .mark::after{content:"";width:13px;height:13px;border-radius:4px;
+    background:#07070c;box-shadow:0 0 0 2px rgba(255,255,255,.15)}
+  .brand h1{font-size:16px;font-weight:600;letter-spacing:-.01em}
+  .brand p{font-size:10px;color:var(--muted);letter-spacing:.1em;
+    text-transform:uppercase;margin-top:2px}
+  .status{display:flex;align-items:center;gap:7px;padding:7px 11px;
+    border-radius:100px;background:var(--panel);border:1px solid var(--stroke);
+    backdrop-filter:blur(20px);font-size:11px;color:var(--muted);
+    font-family:var(--mono)}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--good);
+    box-shadow:0 0 10px var(--good);animation:p 2s ease-in-out infinite}
+  @keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;
+    margin-bottom:16px}
+  .stat{background:var(--panel);border:1px solid var(--stroke);
+    border-radius:14px;padding:13px 13px 12px;backdrop-filter:blur(24px);
+    position:relative;overflow:hidden;
+    transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s}
+  .stat::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent)}
+  .stat .lbl{font-size:10px;color:var(--muted);letter-spacing:.08em;
+    text-transform:uppercase;margin-bottom:7px}
+  .stat .val{font-size:22px;font-weight:600;font-family:var(--mono);
+    letter-spacing:-.02em;
+    background:linear-gradient(180deg,#fff,#b8b8d0);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat.a .val{background:linear-gradient(180deg,#c4b5fd,#7c5cff);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat.g .val{background:linear-gradient(180deg,#86efac,#22c55e);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat.b .val{background:linear-gradient(180deg,#fca5a5,#ef4444);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .panel{background:var(--panel);border:1px solid var(--stroke);
+    border-radius:14px;backdrop-filter:blur(28px);padding:18px;
+    margin-bottom:14px;position:relative;overflow:hidden}
+  .panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent)}
+  .panel h2{font-size:13px;font-weight:600;margin-bottom:14px;
+    display:flex;align-items:center;gap:8px}
+  .panel h2 .tag{font-size:9px;font-family:var(--mono);color:var(--muted);
+    padding:3px 7px;border-radius:100px;border:1px solid var(--stroke);
+    background:rgba(255,255,255,.02);letter-spacing:.05em;text-transform:uppercase}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+    margin-bottom:12px}
+  .grid .full{grid-column:span 4}
+  .field label{display:block;font-size:10px;color:var(--muted);
+    letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;
+    font-weight:500}
+  .field input,.field select{width:100%;padding:10px 12px;border-radius:10px;
+    background:rgba(0,0,0,.4);border:1px solid var(--stroke);color:var(--text);
+    font-family:var(--mono);font-size:13px;outline:none;
+    transition:border-color .2s,background .2s,box-shadow .2s}
+  .field input:focus{border-color:rgba(124,92,255,.55);
+    background:rgba(0,0,0,.55);box-shadow:0 0 0 4px rgba(124,92,255,.09)}
+  .switch{display:flex;align-items:center;gap:9px;padding:10px 12px;
+    border-radius:10px;background:rgba(0,0,0,.4);
+    border:1px solid var(--stroke);cursor:pointer;user-select:none;
+    transition:border-color .2s}
+  .switch .track{width:34px;height:19px;border-radius:100px;
+    background:rgba(255,255,255,.1);position:relative;
+    transition:background .25s cubic-bezier(.2,.8,.2,1);flex-shrink:0}
+  .switch .track::after{content:"";position:absolute;top:2px;left:2px;
+    width:15px;height:15px;border-radius:50%;background:#fff;
+    transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+  .switch.on .track{background:linear-gradient(90deg,#7c5cff,#22d3ee)}
+  .switch.on .track::after{transform:translateX(15px)}
+  .switch span{font-size:12px;font-family:var(--mono);color:var(--muted)}
+  .switch.on span{color:var(--text)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    padding:11px 18px;border-radius:10px;border:none;cursor:pointer;
+    font-size:13px;font-weight:600;letter-spacing:.01em;
+    transition:transform .15s cubic-bezier(.2,.8,.2,1),
+      box-shadow .25s,background .2s;position:relative;
+    font-family:inherit;color:inherit}
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:linear-gradient(135deg,#7c5cff,#5b3ce0);color:#fff;
+    box-shadow:0 8px 22px -8px rgba(124,92,255,.65),
+      inset 0 0 0 1px rgba(255,255,255,.12)}
+  .btn-ghost{background:rgba(255,255,255,.04);color:var(--text);
+    border:1px solid var(--stroke)}
+  .btn-sm{padding:6px 10px;font-size:10px;font-family:var(--mono);
+    border-radius:8px;letter-spacing:.03em}
+  .toolbar{display:flex;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+  .chips{display:flex;gap:5px;flex-wrap:wrap}
+  .chip{padding:6px 11px;border-radius:100px;border:1px solid var(--stroke);
+    background:rgba(255,255,255,.02);color:var(--muted);font-size:10px;
+    font-family:var(--mono);cursor:pointer;transition:all .2s;
+    letter-spacing:.05em;text-transform:uppercase}
+  .chip.on{background:linear-gradient(135deg,rgba(124,92,255,.22),
+    rgba(34,211,238,.12));border-color:rgba(124,92,255,.45);color:#fff}
+  .search{flex:1;min-width:140px}
+  .search input{width:100%;padding:9px 13px;border-radius:100px;
+    background:rgba(0,0,0,.4);border:1px solid var(--stroke);color:var(--text);
+    font-family:var(--mono);font-size:12px;outline:none;transition:all .2s}
+  .search input:focus{border-color:rgba(124,92,255,.5);
+    box-shadow:0 0 0 4px rgba(124,92,255,.09)}
+  .keys{display:flex;flex-direction:column;gap:7px}
+  .key-row{display:grid;grid-template-columns:1fr auto;gap:12px;
+    align-items:center;padding:12px 14px;border-radius:12px;
+    background:var(--panel2);border:1px solid var(--stroke);
+    transition:transform .2s cubic-bezier(.2,.8,.2,1),
+      border-color .2s,background .2s;animation:fi .3s cubic-bezier(.2,.8,.2,1) both}
+  .key-main{display:flex;flex-direction:column;gap:7px;min-width:0}
+  .key-code{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .key-code code{font-family:var(--mono);font-size:12px;font-weight:500;
+    color:#fff;letter-spacing:.02em;word-break:break-all}
+  .badge{font-family:var(--mono);font-size:9px;padding:3px 7px;
+    border-radius:100px;letter-spacing:.06em;text-transform:uppercase;
+    font-weight:600}
+  .b-vip{background:linear-gradient(135deg,rgba(124,92,255,.28),
+    rgba(34,211,238,.22));color:#c4b5fd;
+    border:1px solid rgba(124,92,255,.4)}
+  .b-free{background:rgba(255,255,255,.05);color:var(--muted);
+    border:1px solid var(--stroke)}
+  .b-good{background:rgba(34,197,94,.14);color:#86efac;
+    border:1px solid rgba(34,197,94,.32)}
+  .b-bad{background:rgba(239,68,68,.14);color:#fca5a5;
+    border:1px solid rgba(239,68,68,.32)}
+  .key-meta{display:flex;gap:12px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .key-meta b{color:var(--text);font-weight:500}
+  .key-actions{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;
+    justify-content:flex-end}
+  .empty{padding:36px 18px;text-align:center;color:var(--muted);
+    font-family:var(--mono);font-size:11px}
+  .toast{position:fixed;bottom:20px;left:50%;
+    transform:translateX(-50%) translateY(140%);
+    padding:11px 17px;border-radius:100px;
+    background:rgba(20,20,32,.92);border:1px solid var(--stroke2);
+    backdrop-filter:blur(20px);color:var(--text);
+    font-family:var(--mono);font-size:11px;z-index:999;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1);
+    white-space:nowrap;box-shadow:0 12px 40px rgba(0,0,0,.5);
+    max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.ok{border-color:rgba(34,197,94,.55)}
+  .toast.err{border-color:rgba(239,68,68,.55)}
+  @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media(max-width:640px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .grid .full{grid-column:span 2}
+    .key-row{grid-template-columns:1fr}
+    .key-actions{justify-content:flex-start}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark"></div>
+      <div><h1>ollie panel</h1><p>ml loader · key admin</p></div>
+    </div>
+    <div class="status"><div class="dot" id="sdot"></div><span id="stxt">firebase</span></div>
+  </header>
+  <section class="stats">
+    <div class="stat"><div class="lbl">total</div><div class="val" id="s-total">–</div></div>
+    <div class="stat g"><div class="lbl">aktif</div><div class="val" id="s-active">–</div></div>
+    <div class="stat b"><div class="lbl">expired</div><div class="val" id="s-exp">–</div></div>
+    <div class="stat a"><div class="lbl">vip</div><div class="val" id="s-vip">–</div></div>
+  </section>
+  <section class="panel">
+    <h2>generate key <span class="tag">firebase push</span></h2>
+    <div class="grid">
+      <div class="field"><label>jumlah</label>
+        <input id="f-count" type="number" min="1" max="50" value="1"></div>
+      <div class="field"><label>hari</label>
+        <input id="f-days" type="number" min="1" value="30"></div>
+      <div class="field"><label>max dev</label>
+        <input id="f-dev" type="number" min="1" value="2"></div>
+      <div class="field"><label>prefix</label>
+        <input id="f-prefix" value="OLLIE" maxlength="8"></div>
+      <div class="field full"><label>catatan</label>
+        <input id="f-note" placeholder="reseller / batch ..." maxlength="64"></div>
+      <div class="field full" style="display:flex;gap:10px;align-items:flex-end">
+        <div class="switch on" id="sw-vip" onclick="this.classList.toggle('on')">
+          <div class="track"></div><span>vip</span></div>
+        <button class="btn btn-primary" style="flex:1" onclick="gen()">generate</button>
+      </div>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>key list <span class="tag" id="s-count">0</span></h2>
+    <div class="toolbar">
+      <div class="search">
+        <input id="f-search" placeholder="cari key / catatan ..." oninput="applyFilter()"></div>
+      <div class="chips">
+        <div class="chip on" data-f="all" onclick="pick(this)">all</div>
+        <div class="chip" data-f="active" onclick="pick(this)">aktif</div>
+        <div class="chip" data-f="expired" onclick="pick(this)">exp</div>
+        <div class="chip" data-f="vip" onclick="pick(this)">vip</div>
+        <div class="chip" data-f="free" onclick="pick(this)">free</div>
+      </div>
+    </div>
+    <div class="keys" id="keys"><div class="empty">memuat ...</div></div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const FB = 'https://staffmod-notif-e8adc-default-rtdb.asia-southeast1.firebasedatabase.app';
+let allKeys = [];
+let filter = 'all';
+function toast(msg, kind){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + (kind || '');
+  clearTimeout(t._h); t._h = setTimeout(() => t.className = 'toast', 2400);
+}
+function setStat(id, v){ document.getElementById(id).textContent = v; }
+function pick(el){
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on'); filter = el.dataset.f; applyFilter();
+}
+function genSuffix(len){
+  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let s = '';
+  for (let i = 0; i < len; i++) s += A[Math.floor(Math.random()*A.length)];
+  return s;
+}
+function genKey(prefix){
+  return prefix + '-' + genSuffix(4) + '-' + genSuffix(4) + '-' + genSuffix(4);
+}
+async function fbGet(p){
+  const r = await fetch(FB + '/' + p + '.json', {cache:'no-store'});
+  if (!r.ok) throw new Error('get ' + r.status); return await r.json();
+}
+async function fbPut(p, data){
+  const r = await fetch(FB + '/' + p + '.json', {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)});
+  if (!r.ok) throw new Error('put ' + r.status); return await r.json();
+}
+async function fbDel(p){
+  const r = await fetch(FB + '/' + p + '.json', {method:'DELETE'});
+  if (!r.ok) throw new Error('del ' + r.status);
+}
+async function loadKeys(){
+  try {
+    const raw = await fbGet('keys') || {};
+    const devices = await fbGet('devices') || {};
+    const now = Date.now();
+    allKeys = Object.keys(raw).map(k => {
+      const v = raw[k] || {};
+      const exp = Number(v.expired) || 0;
+      const devs = devices[k] ? Object.keys(devices[k]).length : 0;
+      return {key:k, expired:exp, maxDev:Number(v.maxDevice)||1,
+        vip:!!v.vip, created:Number(v.created)||0, note:v.note||'',
+        devices:devs, active:exp>now,
+        daysLeft:Math.max(0, Math.floor((exp-now)/86400000))};
+    });
+    allKeys.sort((a,b) => b.created - a.created);
+    setStat('s-total', allKeys.length);
+    setStat('s-active', allKeys.filter(k => k.active).length);
+    setStat('s-exp', allKeys.filter(k => !k.active).length);
+    setStat('s-vip', allKeys.filter(k => k.vip && k.active).length);
+    setStat('s-count', allKeys.length);
+    document.getElementById('sdot').style.background = '#22c55e';
+    document.getElementById('stxt').textContent = 'firebase live';
+    render();
+  } catch(e){
+    document.getElementById('sdot').style.background = '#ef4444';
+    document.getElementById('stxt').textContent = 'offline';
+    document.getElementById('keys').innerHTML =
+      '<div class="empty">gagal load: ' + e.message + '</div>';
+  }
+}
+function render(){
+  const wrap = document.getElementById('keys');
+  if (!allKeys.length){
+    wrap.innerHTML = '<div class="empty">belum ada key. generate dulu.</div>';
+    return;
+  }
+  wrap.innerHTML = allKeys.map(k => `
+    <div class="key-row" data-key="${k.key}" data-vip="${k.vip?1:0}"
+         data-active="${k.active?1:0}" data-note="${(k.note||'').replace(/"/g,'&quot;')}">
+      <div class="key-main">
+        <div class="key-code">
+          <code>${k.key}</code>
+          <span class="badge ${k.vip?'b-vip':'b-free'}">${k.vip?'VIP':'FREE'}</span>
+          <span class="badge ${k.active?'b-good':'b-bad'}">${k.active?'aktif':'expired'}</span>
+        </div>
+        <div class="key-meta">
+          <span>sisa <b>${k.daysLeft}h</b></span>
+          <span>dev <b>${k.devices}/${k.maxDev}</b></span>
+          ${k.note ? `<span>note <b>${k.note}</b></span>` : ''}
+        </div>
+      </div>
+      <div class="key-actions">
+        <button class="btn btn-ghost btn-sm" onclick="cp('${k.key}')">copy</button>
+        <button class="btn btn-ghost btn-sm" onclick="ext('${k.key}')">+30h</button>
+        <button class="btn btn-ghost btn-sm" onclick="tog('${k.key}')">vip⇄</button>
+        <button class="btn btn-ghost btn-sm" style="color:#fca5a5"
+          onclick="del('${k.key}')">del</button>
+      </div>
+    </div>`).join('');
+  applyFilter();
+}
+function applyFilter(){
+  const q = (document.getElementById('f-search').value || '').toLowerCase();
+  document.querySelectorAll('.key-row').forEach(r => {
+    const key = r.dataset.key.toLowerCase();
+    const note = (r.dataset.note || '').toLowerCase();
+    const vip = r.dataset.vip === '1';
+    const act = r.dataset.active === '1';
+    let ok = true;
+    if (filter === 'active') ok = act;
+    if (filter === 'expired') ok = !act;
+    if (filter === 'vip') ok = vip;
+    if (filter === 'free') ok = !vip;
+    if (q && !(key.includes(q) || note.includes(q))) ok = false;
+    r.style.display = ok ? '' : 'none';
+  });
+}
+async function cp(k){
+  try { await navigator.clipboard.writeText(k); toast('copied: ' + k, 'ok'); }
+  catch(e){
+    const ta = document.createElement('textarea'); ta.value = k;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta); toast('copied: ' + k, 'ok');
+  }
+}
+async function gen(){
+  const prefix = (document.getElementById('f-prefix').value || 'OLLIE').toUpperCase();
+  const count = Math.max(1, Math.min(50, +document.getElementById('f-count').value || 1));
+  const days = Math.max(1, +document.getElementById('f-days').value || 30);
+  const maxDev = Math.max(1, +document.getElementById('f-dev').value || 2);
+  const note = document.getElementById('f-note').value || '';
+  const vip = document.getElementById('sw-vip').classList.contains('on');
+  toast('generate ' + count + ' key ...');
+  let ok = 0; const now = Date.now();
+  for (let i = 0; i < count; i++){
+    const k = genKey(prefix);
+    try {
+      await fbPut('keys/' + k, {expired: now + days*86400000,
+        maxDevice: maxDev, vip: vip, created: now, note: note});
+      ok++;
+    } catch(e){ toast('gagal: ' + e.message, 'err'); break; }
+  }
+  if (ok > 0){ toast(ok + ' key dibuat', 'ok'); loadKeys(); }
+}
+async function del(k){
+  if (!confirm('hapus ' + k + ' ?')) return;
+  try {
+    await fbDel('keys/' + k); await fbDel('devices/' + k);
+    toast('hapus: ' + k, 'ok'); loadKeys();
+  } catch(e){ toast('gagal: ' + e.message, 'err'); }
+}
+async function ext(k){
+  try {
+    const cur = await fbGet('keys/' + k) || {};
+    const now = Date.now();
+    const base = Math.max(now, Number(cur.expired) || now);
+    cur.expired = base + 30 * 86400000;
+    await fbPut('keys/' + k, cur);
+    toast('+30 hari: ' + k, 'ok'); loadKeys();
+  } catch(e){ toast('gagal: ' + e.message, 'err'); }
+}
+async function tog(k){
+  try {
+    const cur = await fbGet('keys/' + k) || {};
+    cur.vip = !cur.vip; await fbPut('keys/' + k, cur);
+    toast('vip → ' + (cur.vip ? 'on' : 'off'), 'ok'); loadKeys();
+  } catch(e){ toast('gagal: ' + e.message, 'err'); }
+}
+loadKeys();
+</script>
+</body>
+</html>
