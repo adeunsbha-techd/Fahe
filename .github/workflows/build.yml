@@ -22,12 +22,18 @@ jobs:
 
       - name: Install Gradle 8.5
         run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip -O /tmp/g.zip
-          unzip -q /tmp/g.zip -d /opt
-          echo "/opt/gradle-8.5/bin" >> $GITHUB_PATH
+          cd $HOME
+          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
+          unzip -q gradle-8.5-bin.zip
+          echo "$HOME/gradle-8.5/bin" >> $GITHUB_PATH
 
-      - name: Verify Gradle
-        run: gradle --version
+      - name: Verify
+        run: |
+          echo "PWD: $(pwd)"
+          echo "FILES:"
+          ls -la
+          echo "GRADLE:"
+          gradle --version
 
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon --stacktrace
